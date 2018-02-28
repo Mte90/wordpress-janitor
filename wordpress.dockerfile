@@ -8,16 +8,11 @@ RUN apt-get install python-software-properties software-properties-common -y && 
     echo "postfix postfix/main_mailer_type select Internet Site"       | debconf-set-selections && \
     echo "postfix postfix/mailname string janitor"                     | debconf-set-selections && \
     apt-get remove mercurial mercurial-common -y && \
-	curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
-	chmod +x wp-cli.phar && \
-	mv wp-cli.phar /usr/local/bin/wp && \
-	chown user:user /usr/local/bin/wp
-	curl -sS https://getcomposer.org/installer -o composer-setup.php && \
-	php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
     apt-get update && apt-get install -y \
         colordiff \
         dos2unix \
         graphviz \
+        curl \
         imagemagick \
         mysql-server \
         mysql-client \
@@ -52,6 +47,12 @@ RUN apt-get install python-software-properties software-properties-common -y && 
 	mysql -u root --password=root -e "GRANT ALL PRIVILEGES ON wordpress_develop.* TO wp@localhost IDENTIFIED BY 'wp';" && \
 	composer global require phpunit/phpunit ^6.5 && \
 	gem install mailcatcher && \
+	curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+	chmod +x wp-cli.phar && \
+	mv wp-cli.phar /usr/local/bin/wp && \
+	chown user:user /usr/local/bin/wp
+	curl -sS https://getcomposer.org/installer -o composer-setup.php && \
+	php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
 	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* /var/log/apt/* /var/log/*.log && \
 	mailcatcher --smtp-ip=0.0.0.0 --http-ip=0.0.0.0 --foreground &
 USER user
