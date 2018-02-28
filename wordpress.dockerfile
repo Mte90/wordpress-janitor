@@ -50,7 +50,7 @@ RUN apt-get install python-software-properties software-properties-common -y && 
 	curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
 	chmod +x wp-cli.phar && \
 	mv wp-cli.phar /usr/local/bin/wp && \
-	chown user:user /usr/local/bin/wp
+	chown user:user /usr/local/bin/wp && \
 	curl -sS https://getcomposer.org/installer -o composer-setup.php && \
 	php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
 	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* /var/log/apt/* /var/log/*.log && \
