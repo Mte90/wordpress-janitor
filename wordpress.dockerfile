@@ -37,9 +37,36 @@ RUN echo "mysql-server mysql-server/root_password password root"       | debconf
         php7.0-zip \
         postfix \
         rsync \
-        subversion \
+        nodejs \
         sudo \
         unzip \
         vim \
         wget \
         zip
+
+# set recommended PHP.ini settings
+# see https://secure.php.net/manual/en/opcache.installation.php
+RUN { \
+		echo 'opcache.memory_consumption=128'; \
+		echo 'opcache.interned_strings_buffer=8'; \
+		echo 'opcache.max_accelerated_files=4000'; \
+		echo 'opcache.revalidate_freq=2'; \
+		echo 'opcache.fast_shutdown=1'; \
+		echo 'opcache.enable_cli=1'; \
+	} > /usr/local/etc/php/conf.d/opcache-recommended.ini
+%%VARIANT_EXTRAS%%
+VOLUME /var/www/html
+
+RUN set -ex; \
+	mysql -u root --password=root -e "CREATE DATABASE IF NOT EXISTS wordpress_develop" \
+	mysql -u root --password=root -e "GRANT ALL PRIVILEGES ON wordpress_develop.* TO wp@localhost IDENTIFIED BY 'wp';" \
+	git clone git@github.com:WordPress/WordPress.git \
+	curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+	chmod +x wp-cli.phar \
+	mv wp-cli.phar /usr/local/bin/wp \
+	cd /var/www/html/wordpress/src \
+	npm install --no-bin-links \
+	grunt \
+	wp core config --dbname=wordpress_develop --dbuser=wp --dbpass=wp --quiet --extra-php <<PHP
+    define( 'WP_DEBUG', true ); PHP \
+    wp core install --url=src.wordpress-develop.test --quiet --title="WordPress Develop" --admin_name=admin --admin_email="admin@local.test" --admin_password="password" \
