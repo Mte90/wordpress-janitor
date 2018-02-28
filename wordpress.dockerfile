@@ -38,8 +38,8 @@ RUN apt-get install python-software-properties software-properties-common -y && 
         postfix \
         ruby-dev \
         libsqlite3-dev \
-        rsync && \
-    service mysql restart && \
+        rsync
+RUN service mysql restart && \
     chown -R mysql:mysql /var/lib/mysql && \
     which mysql && until mysql -u root -e "show status" &>/dev/null; do sleep 1; done && \
 	mysql -u root --password=root -e "CREATE DATABASE IF NOT EXISTS wordpress_develop" && \
