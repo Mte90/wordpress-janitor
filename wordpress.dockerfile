@@ -61,9 +61,9 @@ RUN set -ex; \
 	npm install --no-bin-links && \
 	npm install -g grunt && \
 	grunt && \
-	wp core config --dbname=wordpress_develop --dbuser=root --dbpass=root --quiet && \
-	wp config set WP_DEBUG true && \
-    wp core install --url=localhost:3000 --quiet --title="WordPress Develop" --admin_name=admin --admin_email="admin@local.test" --admin_password="password"
+	/usr/local/bin/wp core config --dbname=wordpress_develop --dbuser=root --dbpass=root --quiet && \
+	/usr/local/bin/wp config set WP_DEBUG true && \
+    /usr/local/bin/wp core install --url=localhost:3000 --quiet --title="WordPress Develop" --admin_name=admin --admin_email="admin@local.test" --admin_password="password"
 
 WORKDIR /home/user/wordpress
 
