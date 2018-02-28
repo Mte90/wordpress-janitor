@@ -1,9 +1,9 @@
 {
   "name": "WordPress",
-  "description": "",
+  "description": "WordPress is open source software you can use to create a beautiful website, blog, or app.",
   "icon": "https://janitor.technology/img/wordpress.svg",
   "docker": {
-    "image": "janitortechnology/discourse"
+    "image": "mte90/wordpress-janitor"
   },
   "ports": {
     "22": {
@@ -24,11 +24,7 @@
     }
   },
   "scripts": {
-    "Start web server": "bundle exec rails s -b 0.0.0.0",
-    "Create admin user": "bundle exec rake admin:create",
-    "Run frontend (qunit) tests": "bundle exec rake qunit:test['400000']",
-    "Run backend (rspec) tests": "bundle exec rspec",
-    "Run plugin tests": "bundle exec rake plugin:spec",
+    "Run plugin tests": "phpunit",
     "Update source code": "git pull origin master",
     "Send to code review": "hub pull-request"
   }
