@@ -56,8 +56,8 @@ RUN apt-get install python-software-properties software-properties-common -y && 
 	mailcatcher --smtp-ip=0.0.0.0 --http-ip=0.0.0.0 --foreground &
 USER user
 
+RUN git clone git://develop.git.wordpress.org/ wordpress
 RUN set -ex; \
-	git clone git://develop.git.wordpress.org/ wordpress && \
 	cd /home/user/wordpress/src && \
 	npm install --no-bin-links && \
 	npm install -g grunt && \
