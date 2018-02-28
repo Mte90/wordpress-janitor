@@ -12,7 +12,6 @@ RUN apt-get install python-software-properties software-properties-common -y && 
         colordiff \
         dos2unix \
         graphviz \
-        curl \
         imagemagick \
         mysql-server \
         mysql-client \
@@ -40,7 +39,7 @@ RUN apt-get install python-software-properties software-properties-common -y && 
         ruby-dev \
         libsqlite3-dev \
         rsync && \
-    service mysql restart \
+    service mysql restart && \
     chown -R mysql:mysql /var/lib/mysql && \
     which mysql && until mysql -u root -e "show status" &>/dev/null; do sleep 1; done && \
 	mysql -u root --password=root -e "CREATE DATABASE IF NOT EXISTS wordpress_develop" && \
