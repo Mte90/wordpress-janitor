@@ -10,9 +10,10 @@ RUN apt-get install python-software-properties software-properties-common -y && 
     apt-get remove mercurial mercurial-common -y && \
 	curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
 	chmod +x wp-cli.phar && \
-	sudo mv wp-cli.phar /usr/local/bin/wp && \
+	mv wp-cli.phar /usr/local/bin/wp && \
+	chown user:user /usr/local/bin/wp
 	curl -sS https://getcomposer.org/installer -o composer-setup.php && \
-	sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
+	php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
     apt-get update && apt-get install -y \
         colordiff \
         dos2unix \

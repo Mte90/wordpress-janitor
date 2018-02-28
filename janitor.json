@@ -21,11 +21,14 @@
     "3000": {
       "label": "WordPress",
       "proxy": "https"
+    },
+    "1080": {
+      "label": "Mailcatcher",
+      "proxy": "http"
     }
   },
   "scripts": {
     "Run plugin tests": "phpunit",
-    "Update source code": "git pull origin master",
-    "Send to code review": "hub pull-request"
+    "Update source code": "git pull origin master"
   }
 }
