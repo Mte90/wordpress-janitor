@@ -1,19 +1,25 @@
 FROM janx/ubuntu-dev
 
+ADD supervisord-append.conf /tmp
+
 USER root
-RUN apt-get install python-software-properties software-properties-common -y && \
+RUN apt-get install python-software-properties software-properties-common -y --no-install-recommends && \
     add-apt-repository ppa:ondrej/php && \
-    echo "mysql-server mysql-server/root_password password root"       | debconf-set-selections && \
-    echo "mysql-server mysql-server/root_password_again password root" | debconf-set-selections && \
+    echo "mysql-server-5.7 mysql-server/root_password password wp"       | debconf-set-selections && \
+    echo "mysql-server-5.7 mysql-server/root_password_again password wp" | debconf-set-selections && \
     echo "postfix postfix/main_mailer_type select Internet Site"       | debconf-set-selections && \
     echo "postfix postfix/mailname string janitor"                     | debconf-set-selections && \
+    echo 'phpmyadmin phpmyadmin/dbconfig-install boolean true'         | debconf-set-selections && \
+    echo 'phpmyadmin phpmyadmin/app-password-confirm password phpmyadmin_password ' | debconf-set-selections && \
+    echo 'phpmyadmin phpmyadmin/mysql/admin-pass password mysql_pass'  | debconf-set-selections && \
+    echo 'phpmyadmin phpmyadmin/mysql/app-pass password mysql_pass'    | debconf-set-selections && \
+    echo 'phpmyadmin phpmyadmin/reconfigure-webserver multiselect apache2' | debconf-set-selections && \
     apt-get remove mercurial mercurial-common -y && \
-    apt-get update && apt-get install -y \
+    apt-get update && apt-get install -y --no-install-recommends \
         colordiff \
         dos2unix \
-        graphviz \
         imagemagick \
-        mysql-server \
+        mysql-server-5.7 \
         mysql-client \
         nginx \
         ngrep \
@@ -38,33 +44,33 @@ RUN apt-get install python-software-properties software-properties-common -y && 
         postfix \
         ruby-dev \
         libsqlite3-dev \
-        rsync
-RUN service mysql restart && \
-    chown -R mysql:mysql /var/lib/mysql && \
-    which mysql && until mysql -u root -e "show status" &>/dev/null; do sleep 1; done && \
-	mysql -u root --password=root -e "CREATE DATABASE IF NOT EXISTS wordpress_develop" && \
-	mysql -u root --password=root -e "GRANT ALL PRIVILEGES ON wordpress_develop.* TO wp@localhost IDENTIFIED BY 'wp';" && \
-	composer global require phpunit/phpunit ^6.5 && \
-	gem install mailcatcher && \
-	curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+        rsync && \
+    gem install mailcatcher
+
+RUN (cat /tmp/supervisord-append.conf | sudo tee -a /etc/supervisord.conf) && \
+    sudo rm -f /tmp/supervisord-append.conf && \
+    sed -i -e"s/^bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/" /etc/mysql/my.cnf && \
+    chown -R mysql:mysql /var/lib/mysql && service mysql start
+RUN mysql -u root --password=wp -e "CREATE DATABASE IF NOT EXISTS wordpress_develop" && \
+	mysql -u root --password=wp -e "GRANT ALL PRIVILEGES ON wordpress_develop.* TO wp@localhost IDENTIFIED BY 'wp';" && \
+	apt-get install phpmyadmin -y --no-install-recommends
+RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
 	chmod +x wp-cli.phar && \
 	mv wp-cli.phar /usr/local/bin/wp && \
-	chown user:user /usr/local/bin/wp && \
 	curl -sS https://getcomposer.org/installer -o composer-setup.php && \
 	php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
-	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* /var/log/apt/* /var/log/*.log && \
-	mailcatcher --smtp-ip=0.0.0.0 --http-ip=0.0.0.0 --foreground &
-USER user
+	composer global require phpunit/phpunit ^6.5 && \
+	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* /var/log/apt/* /var/log/*.log
 
+USER user
 RUN git clone git://develop.git.wordpress.org/ wordpress
-RUN set -ex; \
-	cd /home/user/wordpress/src && \
+RUN cd /home/user/wordpress/src && \
 	npm install --no-bin-links && \
 	npm install -g grunt && \
-	grunt && \
-	/usr/local/bin/wp core config --dbname=wordpress_develop --dbuser=root --dbpass=root --quiet && \
-	/usr/local/bin/wp config set WP_DEBUG true && \
-    /usr/local/bin/wp core install --url=localhost:3000 --quiet --title="WordPress Develop" --admin_name=admin --admin_email="admin@local.test" --admin_password="password"
+	grunt
+RUN	cd /home/user/wordpress/src && wp core config --dbname=wordpress_develop --dbuser=root --dbpass=wp --quiet && \
+	wp config set WP_DEBUG true && \
+    wp core install --url=localhost:3000 --quiet --title="WordPress Develop" --admin_name=admin --admin_email="admin@local.test" --admin_password="password"
 
 WORKDIR /home/user/wordpress
 
@@ -74,3 +80,9 @@ RUN sudo sed -i "s/-w \/home\/user/-w \/home\/user\/wordpress/" /etc/supervisord
 # Configure Janitor for Wordpress
 ADD janitor.json /home/user/
 RUN sudo chown user:user /home/user/janitor.json
+
+ENV WP_TESTS_DB_HOST localhost
+ENV WP_TESTS_DB_USER root
+ENV WP_TESTS_DB_PASSWORD wp
+
+EXPOSE 3306
