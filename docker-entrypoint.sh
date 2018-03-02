@@ -19,7 +19,7 @@ if ! [ -f ./wp-config.php ]; then
 define( 'WP_DEBUG', true );
 define( 'WP_DEBUG_DISPLAY', false );
 define( 'WP_DEBUG_LOG', true );
-PHP 2>/dev/null
+PHP
     wp core install --url=localhost:3000 --quiet --title="WordPress Develop" --admin_name=admin --admin_email="admin@local.test" --admin_password="password" 2>/dev/null
 
     mkdir -p ./wp-content/uploads

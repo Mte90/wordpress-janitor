@@ -1,8 +1,7 @@
 FROM janx/ubuntu-dev
 
-ADD supervisord-append.conf /tmp
-
 USER root
+# This is the most heavy and slow part that require compile of stuff, as first so on changes there are less issues
 RUN apt-get install python-software-properties software-properties-common -y --no-install-recommends && \
     add-apt-repository ppa:ondrej/php && \
     echo "mysql-server-5.7 mysql-server/root_password password wp"       | debconf-set-selections && \
@@ -47,6 +46,8 @@ RUN apt-get install python-software-properties software-properties-common -y --n
         rsync && \
     gem install mailcatcher
 
+ADD supervisord-append.conf /tmp
+
 RUN (cat /tmp/supervisord-append.conf | sudo tee -a /etc/supervisord.conf) && \
     sudo rm -f /tmp/supervisord-append.conf && \
     sed -i -e"s/^bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/" /etc/mysql/my.cnf && \
@@ -61,14 +62,12 @@ RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli
 	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* /var/log/apt/* /var/log/*.log
 
 USER user
+# Another heavy part that require a lot of time
 RUN git clone git://develop.git.wordpress.org/ wordpress
 RUN cd /home/user/wordpress/src && \
 	npm install --no-bin-links && \
 	npm install -g grunt && \
 	grunt
-#RUN	cd /home/user/wordpress/src && wp core config --dbname=wordpress_develop --dbuser=root --dbpass=wp --quiet && \
-#	wp config set WP_DEBUG true && \
-#    wp core install --url=localhost:3000 --quiet --title="WordPress Develop" --admin_name=admin --admin_email="admin@local.test" --admin_password="password"
 
 WORKDIR /home/user/wordpress
 
