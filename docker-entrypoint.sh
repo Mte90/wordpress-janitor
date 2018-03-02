@@ -26,3 +26,5 @@ PHP
     sudo chown -R www-data ./wp-content
     sudo chmod -R 775 ./wp-content
 fi
+
+exec "$@"
