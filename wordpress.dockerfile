@@ -50,9 +50,7 @@ RUN apt-get install python-software-properties software-properties-common -y --n
 RUN (cat /tmp/supervisord-append.conf | sudo tee -a /etc/supervisord.conf) && \
     sudo rm -f /tmp/supervisord-append.conf && \
     sed -i -e"s/^bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/" /etc/mysql/my.cnf && \
-    chown -R mysql:mysql /var/lib/mysql && service mysql start
-RUN mysql -u root --password=wp -e "CREATE DATABASE IF NOT EXISTS wordpress_develop" && \
-	mysql -u root --password=wp -e "GRANT ALL PRIVILEGES ON wordpress_develop.* TO wp@localhost IDENTIFIED BY 'wp';" && \
+    chown -R mysql:mysql /var/lib/mysql && service mysql start && \
 	apt-get install phpmyadmin -y --no-install-recommends
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
 	chmod +x wp-cli.phar && \
@@ -68,9 +66,9 @@ RUN cd /home/user/wordpress/src && \
 	npm install --no-bin-links && \
 	npm install -g grunt && \
 	grunt
-RUN	cd /home/user/wordpress/src && wp core config --dbname=wordpress_develop --dbuser=root --dbpass=wp --quiet && \
-	wp config set WP_DEBUG true && \
-    wp core install --url=localhost:3000 --quiet --title="WordPress Develop" --admin_name=admin --admin_email="admin@local.test" --admin_password="password"
+#RUN	cd /home/user/wordpress/src && wp core config --dbname=wordpress_develop --dbuser=root --dbpass=wp --quiet && \
+#	wp config set WP_DEBUG true && \
+#    wp core install --url=localhost:3000 --quiet --title="WordPress Develop" --admin_name=admin --admin_email="admin@local.test" --admin_password="password"
 
 WORKDIR /home/user/wordpress
 
@@ -86,3 +84,7 @@ ENV WP_TESTS_DB_USER root
 ENV WP_TESTS_DB_PASSWORD wp
 
 EXPOSE 3306
+
+COPY docker-entrypoint.sh /home/user/wordpress/entrypoint.sh
+RUN chmod +x /home/user/wordpress/entrypoint.sh
+ENTRYPOINT ["/home/user/wordpress/entrypoint.sh"]
