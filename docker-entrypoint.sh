@@ -1,6 +1,4 @@
-#!/usr/bin/env bash
-
-set -ex
+#!/bin/bash
 
 sudo chown -R mysql:mysql /var/lib/mysql
 sudo service mysql start 2>/dev/null
