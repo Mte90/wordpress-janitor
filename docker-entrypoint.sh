@@ -3,10 +3,10 @@
 set -ex
 
 sudo chown -R mysql:mysql /var/lib/mysql
-sudo service mysql start
+sudo service mysql start 2>/dev/null
 
 cd /home/user/wordpress/
-git pull
+git pull 2>/dev/null
 
 cd /home/user/wordpress/src/
 # Create WordPress config.
