@@ -84,6 +84,7 @@ ENV WP_TESTS_DB_USER root
 ENV WP_TESTS_DB_PASSWORD wp
 
 EXPOSE 3306
+EXPOSE 80
 
 COPY docker-entrypoint.sh /home/user/wordpress/entrypoint.sh
 RUN sudo chmod +x /home/user/wordpress/entrypoint.sh
