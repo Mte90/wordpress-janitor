@@ -46,18 +46,16 @@ RUN apt-get install python-software-properties software-properties-common -y --n
         rsync && \
     gem install mailcatcher
 
-ADD supervisord-append.conf /tmp
-
 RUN sed -i -e"s/^bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/" /etc/mysql/my.cnf && \
     chown -R mysql:mysql /var/lib/mysql && service mysql start && \
-	apt-get install phpmyadmin -y --no-install-recommends
+	apt-get install phpmyadmin -y --no-install-recommends && \
+	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* /var/log/apt/* /var/log/*.log
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
 	chmod +x wp-cli.phar && \
 	mv wp-cli.phar /usr/local/bin/wp && \
 	curl -sS https://getcomposer.org/installer -o composer-setup.php && \
 	php composer-setup.php --install-dir=/usr/local/bin --filename=composer && \
-	composer global require phpunit/phpunit ^6.5 && \
-	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* /var/log/apt/* /var/log/*.log
+	composer global require phpunit/phpunit ^6.5
 
 USER user
 # Another heavy part that require a lot of time
@@ -69,14 +67,13 @@ RUN cd /home/user/wordpress/src && \
 
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY php-fpm.conf /etc/php/7.1/fpm/php-fpm.conf
-
 RUN sudo mkdir -p /run/php && sudo touch /run/php/php7.1-fpm.sock && sudo touch /run/php/php7.1-fpm.pid
-
-RUN (cat /tmp/supervisord-append.conf | sudo tee -a /etc/supervisord.conf) && \
-    sudo rm -f /tmp/supervisord-append.conf
-
 RUN sudo ln -sf /dev/stdout /var/log/nginx/access.log \
 	&& sudo ln -sf /dev/stderr /var/log/nginx/error.log
+
+COPY supervisord-append.conf /tmp/supervisor-append.conf
+RUN (cat /tmp/supervisord-append.conf | sudo tee -a /etc/supervisord.conf) && \
+    sudo rm -f /tmp/supervisord-append.conf
 
 WORKDIR /home/user/wordpress
 
