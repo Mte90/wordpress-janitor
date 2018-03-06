@@ -61,17 +61,22 @@ RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli
 
 USER user
 # Another heavy part that require a lot of time
-RUN git clone git://develop.git.wordpress.org/ wordpress && ln -s /home/user/wordpress/src /var/www/wordpress
+RUN git clone git://develop.git.wordpress.org/ wordpress && sudo ln -s /home/user/wordpress/src /var/www/wordpress
 RUN cd /home/user/wordpress/src && \
 	npm install --no-bin-links && \
 	npm install -g grunt && \
 	grunt
 
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY php-fpm.conf /etc/php/7.1/fpm/php-fpm.conf
+
+RUN mkdir -p /run/php && touch /run/php/php7.1-fpm.sock && touch /run/php/php7.1-fpm.pid
+
 RUN (cat /tmp/supervisord-append.conf | sudo tee -a /etc/supervisord.conf) && \
     sudo rm -f /tmp/supervisord-append.conf
 
-RUN ln -sf /dev/stdout /var/log/nginx/access.log \
-	&& ln -sf /dev/stderr /var/log/nginx/error.log
+RUN sudo ln -sf /dev/stdout /var/log/nginx/access.log \
+	&& sudo ln -sf /dev/stderr /var/log/nginx/error.log
 
 WORKDIR /home/user/wordpress
 
