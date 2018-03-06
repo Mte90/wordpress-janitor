@@ -71,7 +71,7 @@ RUN sudo mkdir -p /run/php && sudo touch /run/php/php7.1-fpm.sock && sudo touch 
 RUN sudo ln -sf /dev/stdout /var/log/nginx/access.log \
 	&& sudo ln -sf /dev/stderr /var/log/nginx/error.log
 
-COPY supervisord-append.conf /tmp/supervisor-append.conf
+COPY supervisord-append.conf /tmp/supervisord-append.conf
 RUN (cat /tmp/supervisord-append.conf | sudo tee -a /etc/supervisord.conf) && \
     sudo rm -f /tmp/supervisord-append.conf
 
