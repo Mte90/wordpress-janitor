@@ -48,9 +48,7 @@ RUN apt-get install python-software-properties software-properties-common -y --n
 
 ADD supervisord-append.conf /tmp
 
-RUN (cat /tmp/supervisord-append.conf | sudo tee -a /etc/supervisord.conf) && \
-    sudo rm -f /tmp/supervisord-append.conf && \
-    sed -i -e"s/^bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/" /etc/mysql/my.cnf && \
+RUN sed -i -e"s/^bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/" /etc/mysql/my.cnf && \
     chown -R mysql:mysql /var/lib/mysql && service mysql start && \
 	apt-get install phpmyadmin -y --no-install-recommends
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
@@ -63,11 +61,17 @@ RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli
 
 USER user
 # Another heavy part that require a lot of time
-RUN git clone git://develop.git.wordpress.org/ wordpress
+RUN git clone git://develop.git.wordpress.org/ wordpress && ln -s /home/user/wordpress/src /var/www/wordpress
 RUN cd /home/user/wordpress/src && \
 	npm install --no-bin-links && \
 	npm install -g grunt && \
 	grunt
+
+RUN (cat /tmp/supervisord-append.conf | sudo tee -a /etc/supervisord.conf) && \
+    sudo rm -f /tmp/supervisord-append.conf
+
+RUN ln -sf /dev/stdout /var/log/nginx/access.log \
+	&& ln -sf /dev/stderr /var/log/nginx/error.log
 
 WORKDIR /home/user/wordpress
 
