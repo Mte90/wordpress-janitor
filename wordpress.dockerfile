@@ -87,6 +87,7 @@ ENV WP_TESTS_DB_USER root
 ENV WP_TESTS_DB_PASSWORD wp
 
 EXPOSE 3306
+EXPOSE 1080
 EXPOSE 80
 
 COPY prepare.sh /home/user/wordpress/prepare.sh

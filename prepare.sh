@@ -15,7 +15,7 @@ define( 'WP_DEBUG', true );
 define( 'WP_DEBUG_DISPLAY', false );
 define( 'WP_DEBUG_LOG', true );
 PHP
-    wp core install --url=localhost:3000 --quiet --title="WordPress Develop" --admin_name=admin --admin_email="admin@local.test" --admin_password="password" 2>/dev/null
+    wp core install --url=localhost:80 --quiet --title="WordPress Develop" --admin_name=admin --admin_email="admin@local.test" --admin_password="password" 2>/dev/null
 
     mkdir -p ./wp-content/uploads
     sudo chown -R www-data ./wp-content
