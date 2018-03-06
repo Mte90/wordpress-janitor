@@ -70,7 +70,7 @@ RUN cd /home/user/wordpress/src && \
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY php-fpm.conf /etc/php/7.1/fpm/php-fpm.conf
 
-RUN mkdir -p /run/php && touch /run/php/php7.1-fpm.sock && touch /run/php/php7.1-fpm.pid
+RUN sudo mkdir -p /run/php && sudo touch /run/php/php7.1-fpm.sock && sudo touch /run/php/php7.1-fpm.pid
 
 RUN (cat /tmp/supervisord-append.conf | sudo tee -a /etc/supervisord.conf) && \
     sudo rm -f /tmp/supervisord-append.conf
