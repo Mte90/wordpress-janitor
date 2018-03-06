@@ -92,4 +92,3 @@ EXPOSE 80
 
 COPY prepare.sh /home/user/wordpress/prepare.sh
 RUN sudo chmod +x /home/user/wordpress/prepare.sh
-RUN /home/user/wordpress/prepare.sh
