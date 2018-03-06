@@ -47,7 +47,7 @@ RUN apt-get install python-software-properties software-properties-common -y --n
     gem install mailcatcher
 
 RUN sed -i -e"s/^bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/" /etc/mysql/my.cnf && \
-    chown -R mysql:mysql /var/lib/mysql && service mysql start && \
+    chown -R mysql:mysql /var/lib/mysql && mkdir /var/mysqld && chown -R mysql:mysql /var/mysqld && service mysql start && \
 	apt-get install phpmyadmin -y --no-install-recommends && \
 	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* /var/log/apt/* /var/log/*.log
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
@@ -59,7 +59,7 @@ RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli
 
 USER user
 # Another heavy part that require a lot of time
-RUN git clone git://develop.git.wordpress.org/ wordpress && sudo ln -s /home/user/wordpress/src /var/www/wordpress
+RUN git clone git://develop.git.wordpress.org/ wordpress
 RUN cd /home/user/wordpress/src && \
 	npm install --no-bin-links && \
 	npm install -g grunt && \
@@ -68,8 +68,6 @@ RUN cd /home/user/wordpress/src && \
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY php-fpm.conf /etc/php/7.1/fpm/php-fpm.conf
 RUN sudo mkdir -p /run/php && sudo touch /run/php/php7.1-fpm.sock && sudo touch /run/php/php7.1-fpm.pid
-RUN sudo ln -sf /dev/stdout /var/log/nginx/access.log \
-	&& sudo ln -sf /dev/stderr /var/log/nginx/error.log
 
 COPY supervisord-append.conf /tmp/supervisord-append.conf
 RUN (cat /tmp/supervisord-append.conf | sudo tee -a /etc/supervisord.conf) && \
