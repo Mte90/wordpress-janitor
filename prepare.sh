@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sudo chown -R mysql:mysql /var/lib/mysql /var/run/mysqld && sudo touch /var/run/mysqld/mysqld.sock && sudo touch /var/run/mysqld/mysqld.pid && sudo service mysql start
+
 cd /home/user/wordpress/src/
 # Create WordPress config.
 if ! [ -f ./wp-config.php ]; then
