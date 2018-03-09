@@ -46,6 +46,7 @@ RUN apt-get install python-software-properties software-properties-common -y --n
         rsync && \
     gem install mailcatcher
 
+COPY mysqld.cnf /etc/mysql/mysql.conf.d/mysqld.cnf
 RUN sed -i -e"s/^bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/" /etc/mysql/my.cnf && \
     chown -R mysql:mysql /var/lib/mysql && mkdir /var/mysqld && chown -R mysql:mysql /var/mysqld && service mysql start && \
 	apt-get install phpmyadmin -y --no-install-recommends && \
@@ -91,4 +92,4 @@ EXPOSE 1080
 EXPOSE 80
 
 COPY prepare.sh /home/user/wordpress/prepare.sh
-RUN sudo chmod +x /home/user/wordpress/prepare.sh
+RUN sudo chmod +x /home/user/wordpress/prepare.sh && /home/user/wordpress/prepare.sh
