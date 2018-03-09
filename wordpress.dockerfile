@@ -46,9 +46,10 @@ RUN apt-get install python-software-properties software-properties-common -y --n
         rsync && \
     gem install mailcatcher
 
-COPY mysqld.cnf /etc/mysql/my.cnf
 RUN sed -i -e"s/^bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/" /etc/mysql/my.cnf && \
-    chown -R mysql:mysql /var/lib/mysql && mkdir /var/mysqld && chown -R mysql:mysql /var/mysqld && service mysql start && \
+    chown -R mysql:mysql /var/lib/mysql && mkdir /var/run/mysqld && \
+    touch /var/run/mysqld/mysqld.pid && touch /var/run/mysqld/mysqld.sock && \
+    chown -R mysql:mysql /var/run/mysqld && service mysql start && \
     apt-get install phpmyadmin -y --no-install-recommends && \
 	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* /var/log/apt/* /var/log/*.log
 RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
